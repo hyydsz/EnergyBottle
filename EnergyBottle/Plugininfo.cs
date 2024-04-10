@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
 using Steamworks;
 using System.Collections.Generic;
@@ -16,12 +17,13 @@ namespace EnergyBottle
         public const string ModName = "EnergyBottle";
         public const string ModVersion = "0.1.0";
 
+        public static ConfigEntry<int> SpawnBudgetCost;
+
         private readonly Harmony harmony = new Harmony(ModGUID);
 
         private static List<EnergyType> energyTypes;
 
         private AssetBundle asset;
-
         private CSteamID steamID;
 
         void Awake()
@@ -40,6 +42,8 @@ namespace EnergyBottle
             Item health = asset.LoadAsset<Item>("HealthBottle");
             Item oxygen = asset.LoadAsset<Item>("OxygenBottle");
             Item speed = asset.LoadAsset<Item>("SpeedBottle");
+
+            SpawnBudgetCost = Config.Bind("Config", "SpawnBudgetCost", 1);
 
             JumpBehavior.jump = new EnergyType(true, "JumpBottle", 30f, 30f, 50, jump, typeof(JumpBehavior), "Jump Height");
             HealthBehavior.health = new EnergyType(false, "HealthBottle", 30f, 0, 50, health, typeof(HealthBehavior), "Restore Health");

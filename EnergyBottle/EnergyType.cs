@@ -63,7 +63,7 @@ namespace EnergyBottle
 
             item.itemObject.AddComponent(type);
 
-            Items.RegisterSpawnableItem(item, Item.RARITY.always, 1);
+            Items.RegisterSpawnableItem(item, Item.RARITY.always, PluginInfo.SpawnBudgetCost.Value);
         }
 
         public void SteamSet(CSteamID steamID, ConfigFile config)
