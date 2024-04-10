@@ -20,6 +20,8 @@ namespace EnergyBottle
         private float DefualtTime;
         private int DefaultPrice;
 
+        private string Description;
+
         private Item item;
 
         private string TimeKey
@@ -48,10 +50,12 @@ namespace EnergyBottle
 
         public bool SteamLoaded = false;
 
-        public EnergyType(bool HasTime, string EnergyName, float Force, float Time, int Price, Item item, Type type) {
+        public EnergyType(bool HasTime, string EnergyName, float Force, float Time, int Price, Item item, Type type, string Description) {
             this.EnergyName = EnergyName;
             this.HasTime = HasTime;
             this.item = item;
+
+            this.Description = Description;
 
             DefualtForce = Force;
             DefualtTime = Time;
@@ -66,7 +70,7 @@ namespace EnergyBottle
         {
             Buyable = config.Bind(EnergyName, "BottleBuyable", false);
             Price = config.Bind(EnergyName, "BottlePrice", DefaultPrice);
-            Force = config.Bind(EnergyName, "BottleForce", DefualtForce);
+            Force = config.Bind(EnergyName, "BottleForce", DefualtForce, Description);
             
             if (HasTime)
             {

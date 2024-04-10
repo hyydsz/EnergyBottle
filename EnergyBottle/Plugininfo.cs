@@ -41,10 +41,10 @@ namespace EnergyBottle
             Item oxygen = asset.LoadAsset<Item>("OxygenBottle");
             Item speed = asset.LoadAsset<Item>("SpeedBottle");
 
-            JumpBehavior.jump = new EnergyType(true, "JumpBottle", 30f, 30f, 50, jump, typeof(JumpBehavior));
-            HealthBehavior.health = new EnergyType(false, "HealthBottle", 30f, 0, 50, health, typeof(HealthBehavior));
-            OxygenBehavior.oxygen = new EnergyType(false, "OxygenBottle", 30f, 0, 50, oxygen, typeof(OxygenBehavior));
-            SpeedBehavior.speed = new EnergyType(true, "SpeedBottle", 25f, 30f, 50, speed, typeof(SpeedBehavior));
+            JumpBehavior.jump = new EnergyType(true, "JumpBottle", 30f, 30f, 50, jump, typeof(JumpBehavior), "Jump Height");
+            HealthBehavior.health = new EnergyType(false, "HealthBottle", 30f, 0, 50, health, typeof(HealthBehavior), "Restore Health");
+            OxygenBehavior.oxygen = new EnergyType(false, "OxygenBottle", 30f, 0, 50, oxygen, typeof(OxygenBehavior), "Restore Oxygen");
+            SpeedBehavior.speed = new EnergyType(true, "SpeedBottle", 25f, 30f, 50, speed, typeof(SpeedBehavior), "Movement Speed");
 
             energyTypes = new List<EnergyType>()
             {
