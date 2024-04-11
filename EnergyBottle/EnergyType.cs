@@ -1,6 +1,6 @@
 ﻿using BepInEx.Configuration;
 using ShopUtils;
-using Steamworks;
+using ShopUtils.Network;
 using System;
 using UnityEngine;
 
@@ -8,6 +8,8 @@ namespace EnergyBottle
 {
     public class EnergyType
     {
+        public static ConfigFile Config;
+
         private ConfigEntry<bool> Buyable;
         private ConfigEntry<float> Time;
         private ConfigEntry<float> Force;
@@ -44,13 +46,13 @@ namespace EnergyBottle
             get { return $"{EnergyName}Force"; }
         }
 
-        public bool m_Buyable;
         public float m_Time;
         public float m_Force;
 
         public bool SteamLoaded = false;
 
         public EnergyType(bool HasTime, string EnergyName, float Force, float Time, int Price, Item item, Type type, string Description) {
+
             this.EnergyName = EnergyName;
             this.HasTime = HasTime;
             this.item = item;
@@ -63,52 +65,57 @@ namespace EnergyBottle
 
             item.itemObject.AddComponent(type);
 
-            Items.RegisterSpawnableItem(item, Item.RARITY.always, PluginInfo.SpawnBudgetCost.Value);
+            InitData();
+
+            Items.RegisterSpawnableItem(item, RARITY.always, PluginInfo.SpawnBudgetCost.Value);
         }
 
-        public void SteamSet(CSteamID steamID, ConfigFile config)
+        private void InitData()
         {
-            Buyable = config.Bind(EnergyName, "BottleBuyable", false);
-            Price = config.Bind(EnergyName, "BottlePrice", DefaultPrice);
-            Force = config.Bind(EnergyName, "BottleForce", DefualtForce, Description);
-            
-            if (HasTime)
+            Networks.OnLobbyCreated += () =>
             {
-                Time = config.Bind(EnergyName, "BottleTime", DefualtTime);
-
-                SteamMatchmaking.SetLobbyData(steamID, TimeKey, Time.Value.ToString());
-            }
-
-            SteamMatchmaking.SetLobbyData(steamID, BuyableKey, Buyable.Value.ToString());
-            SteamMatchmaking.SetLobbyData(steamID, PriceKey, Price.Value.ToString());
-            SteamMatchmaking.SetLobbyData(steamID, ForceKey, Force.Value.ToString());
-        }
-
-        public void SteamLoad(CSteamID steamID)
-        {
-            try
-            {
-                m_Buyable = bool.Parse(SteamMatchmaking.GetLobbyData(steamID, BuyableKey));
-                m_Force = float.Parse(SteamMatchmaking.GetLobbyData(steamID, ForceKey));
+                Buyable = Config.Bind(EnergyName, "BottleBuyable", false);
+                Price = Config.Bind(EnergyName, "BottlePrice", DefaultPrice);
+                Force = Config.Bind(EnergyName, "BottleForce", DefualtForce, Description);
 
                 if (HasTime)
                 {
-                    m_Time = float.Parse(SteamMatchmaking.GetLobbyData(steamID, TimeKey));
+                    Time = Config.Bind(EnergyName, "BottleTime", DefualtTime);
+
+                    Networks.SetLobbyData(TimeKey, Time.Value);
                 }
 
-                if (m_Buyable)
-                {
-                    int price = int.Parse(SteamMatchmaking.GetLobbyData(steamID, PriceKey));
+                Networks.SetLobbyData(BuyableKey, Buyable.Value);
+                Networks.SetLobbyData(PriceKey, Price.Value);
+                Networks.SetLobbyData(ForceKey, Force.Value);
+            };
 
-                    Items.RegisterShopItem(item, ShopItemCategory.Misc, price);
-                }
-
-                SteamLoaded = true;
-            }
-            catch
+            Networks.OnLobbyEnter += () =>
             {
-                Debug.LogError("Energy Bottle Get Data Error!");
-            }
+                try
+                {
+                    if (HasTime)
+                    {
+                        m_Time = float.Parse(Networks.GetLobbyData(TimeKey));
+                    }
+
+                    m_Force = float.Parse(Networks.GetLobbyData(ForceKey));
+
+                    bool buyable = bool.Parse(Networks.GetLobbyData(BuyableKey));
+                    if (buyable)
+                    {
+                        int price = int.Parse(Networks.GetLobbyData(PriceKey));
+
+                        Items.RegisterShopItem(item, ShopItemCategory.Misc, price);
+                    }
+
+                    SteamLoaded = true;
+                }
+                catch
+                {
+                    Debug.LogError("Load Energy Bottles Data Fail.");
+                }
+            };
         }
     }
 }

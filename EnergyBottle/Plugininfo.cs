@@ -1,11 +1,11 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
-using Steamworks;
-using System.Collections.Generic;
+using ShopUtils;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace EnergyBottle
 {
@@ -15,21 +15,18 @@ namespace EnergyBottle
     {
         public const string ModGUID = "hyydsz-EnergyBottle";
         public const string ModName = "EnergyBottle";
-        public const string ModVersion = "0.1.0";
+        public const string ModVersion = "0.1.1";
 
         public static ConfigEntry<int> SpawnBudgetCost;
 
         private readonly Harmony harmony = new Harmony(ModGUID);
 
-        private static List<EnergyType> energyTypes;
-
         private AssetBundle asset;
-        private CSteamID steamID;
 
         void Awake()
         {
             LoadBottle();
-            LoadSteamConfig();
+            LoadLangauge();
 
             harmony.PatchAll();
         }
@@ -37,6 +34,7 @@ namespace EnergyBottle
         private void LoadBottle()
         {
             asset = QuickLoadAssetBundle("energy");
+            EnergyType.Config = Config;
 
             Item jump = asset.LoadAsset<Item>("JumpBottle");
             Item health = asset.LoadAsset<Item>("HealthBottle");
@@ -49,39 +47,22 @@ namespace EnergyBottle
             HealthBehavior.health = new EnergyType(false, "HealthBottle", 30f, 0, 50, health, typeof(HealthBehavior), "Restore Health");
             OxygenBehavior.oxygen = new EnergyType(false, "OxygenBottle", 30f, 0, 50, oxygen, typeof(OxygenBehavior), "Restore Oxygen");
             SpeedBehavior.speed = new EnergyType(true, "SpeedBottle", 25f, 30f, 50, speed, typeof(SpeedBehavior), "Movement Speed");
-
-            energyTypes = new List<EnergyType>()
-            {
-                JumpBehavior.jump,
-                HealthBehavior.health,
-                OxygenBehavior.oxygen,
-                SpeedBehavior.speed
-            };
         }
 
-        private void LoadSteamConfig()
+        private void LoadLangauge()
         {
-            Callback<LobbyEnter_t>.Create((steam) =>
-            {
-                steamID = new CSteamID(steam.m_ulSteamIDLobby);
+            Locale Chinese = Languages.GetLanguage("zh-Hans");
+            Languages.AddLanguage("JumpBottle_ToolTips", "[鼠标左键] 使用", Chinese);
+            Languages.AddLanguage("JumpBottle", "跳跃能量瓶", Chinese);
 
-                energyTypes.ForEach(item => item.SteamLoad(steamID));
-            });
+            Languages.AddLanguage("HealthBottle_ToolTips", "[鼠标左键] 使用", Chinese);
+            Languages.AddLanguage("HealthBottle", "血量能量瓶", Chinese);
 
-            Callback<LobbyCreated_t>.Create((steam) =>
-            {
-                if (steam.m_eResult == EResult.k_EResultOK)
-                {
-                    steamID = new CSteamID(steam.m_ulSteamIDLobby);
+            Languages.AddLanguage("OxygenBottle_ToolTips", "[鼠标左键] 使用", Chinese);
+            Languages.AddLanguage("OxygenBottle", "氧气能量瓶", Chinese);
 
-                    energyTypes.ForEach(item => item.SteamSet(steamID, Config));
-                }
-            });
-        }
-
-        public static void AddEnergyType(EnergyType type)
-        {
-            energyTypes.Add(type);
+            Languages.AddLanguage("SpeedBottle_ToolTips", "[鼠标左键] 使用", Chinese);
+            Languages.AddLanguage("SpeedBottle", "速度能量瓶", Chinese);
         }
 
         public static AssetBundle QuickLoadAssetBundle(string name)
