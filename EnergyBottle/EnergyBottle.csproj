@@ -89,9 +89,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>copy "E:\Unity\Project\ContentWarningUnityTemplate\AssetsBundles\energy" "C:\Users\lijiy\AppData\Roaming\r2modmanPlus-local\ContentWarning\profiles\Test\BepInEx\plugins\Energy\energy"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy "E:\Unity\BepinEx\ContentWarning\Plugins\EnergyBottle\EnergyBottle\bin\Release\EnergyBottle.dll" "C:\Users\lijiy\AppData\Roaming\r2modmanPlus-local\ContentWarning\profiles\Test\BepInEx\plugins\Energy\EnergyBottle.dll"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

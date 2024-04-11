@@ -17,6 +17,7 @@ namespace EnergyBottle
         public const string ModName = "EnergyBottle";
         public const string ModVersion = "0.1.1";
 
+        public static ConfigEntry<float> SpawnRarity;
         public static ConfigEntry<int> SpawnBudgetCost;
 
         private readonly Harmony harmony = new Harmony(ModGUID);
@@ -41,6 +42,7 @@ namespace EnergyBottle
             Item oxygen = asset.LoadAsset<Item>("OxygenBottle");
             Item speed = asset.LoadAsset<Item>("SpeedBottle");
 
+            SpawnRarity = Config.Bind("Config", "SpawnRarity", 1f);
             SpawnBudgetCost = Config.Bind("Config", "SpawnBudgetCost", 1);
 
             JumpBehavior.jump = new EnergyType(true, "JumpBottle", 30f, 30f, 50, jump, typeof(JumpBehavior), "Jump Height");
