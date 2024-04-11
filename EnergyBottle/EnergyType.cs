@@ -67,7 +67,7 @@ namespace EnergyBottle
 
             InitData();
 
-            Items.RegisterSpawnableArtifactItem(item, PluginInfo.SpawnRarity.Value, PluginInfo.SpawnBudgetCost.Value);
+            Items.RegisterSpawnableItem(item, PluginInfo.SpawnRarity.Value, PluginInfo.SpawnBudgetCost.Value);
         }
 
         private void InitData()
