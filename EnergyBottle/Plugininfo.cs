@@ -2,6 +2,7 @@
 using BepInEx.Configuration;
 using HarmonyLib;
 using ShopUtils;
+using ShopUtils.Language;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace EnergyBottle
     {
         public const string ModGUID = "hyydsz-EnergyBottle";
         public const string ModName = "EnergyBottle";
-        public const string ModVersion = "0.1.3";
+        public const string ModVersion = "0.1.4";
 
         public static ConfigEntry<float> SpawnRarity;
         public static ConfigEntry<int> SpawnBudgetCost;
@@ -53,18 +54,41 @@ namespace EnergyBottle
 
         private void LoadLangauge()
         {
-            Locale Chinese = Languages.GetLanguage("zh-Hans");
-            Languages.AddLanguage("JumpBottle_ToolTips", "[鼠标左键] 使用", Chinese);
-            Languages.AddLanguage("JumpBottle", "跳跃能量瓶", Chinese);
+            Locale Chinese = Languages.GetLanguage(LanguageEnum.ChineseSimplified);
+            Chinese.AddLanguage(
+                new LanguageInstance("JumpBottle_ToolTips", "[LMB] 使用"),
+                new LanguageInstance("JumpBottle", "跳跃能量瓶"),
+                new LanguageInstance("HealthBottle_ToolTips", "[LMB] 使用"),
+                new LanguageInstance("HealthBottle", "血量能量瓶"),
+                new LanguageInstance("OxygenBottle_ToolTips", "[LMB] 使用"),
+                new LanguageInstance("OxygenBottle", "氧气能量瓶"),
+                new LanguageInstance("SpeedBottle_ToolTips", "[LMB] 使用"),
+                new LanguageInstance("SpeedBottle", "速度能量瓶")
+                );
 
-            Languages.AddLanguage("HealthBottle_ToolTips", "[鼠标左键] 使用", Chinese);
-            Languages.AddLanguage("HealthBottle", "血量能量瓶", Chinese);
+            Locale ChineseTraditional = Languages.GetLanguage(LanguageEnum.ChineseTraditional);
+            ChineseTraditional.AddLanguage(
+                new LanguageInstance("JumpBottle_ToolTips", "[LMB] 使用"),
+                new LanguageInstance("JumpBottle", "跳躍能量瓶"),
+                new LanguageInstance("HealthBottle_ToolTips", "[LMB] 使用"),
+                new LanguageInstance("HealthBottle", "血量能量瓶"),
+                new LanguageInstance("OxygenBottle_ToolTips", "[LMB] 使用"),
+                new LanguageInstance("OxygenBottle", "氧氣能量瓶"),
+                new LanguageInstance("SpeedBottle_ToolTips", "[LMB] 使用"),
+                new LanguageInstance("SpeedBottle", "速度能量瓶")
+                );
 
-            Languages.AddLanguage("OxygenBottle_ToolTips", "[鼠标左键] 使用", Chinese);
-            Languages.AddLanguage("OxygenBottle", "氧气能量瓶", Chinese);
-
-            Languages.AddLanguage("SpeedBottle_ToolTips", "[鼠标左键] 使用", Chinese);
-            Languages.AddLanguage("SpeedBottle", "速度能量瓶", Chinese);
+            Locale English = Languages.GetLanguage(LanguageEnum.English);
+            English.AddLanguage(
+                new LanguageInstance("JumpBottle_ToolTips", "[LMB] Use"),
+                new LanguageInstance("JumpBottle", "JumpBottle"),
+                new LanguageInstance("HealthBottle_ToolTips", "[LMB] Use"),
+                new LanguageInstance("HealthBottle", "HealthBottle"),
+                new LanguageInstance("OxygenBottle_ToolTips", "[LMB] Use"),
+                new LanguageInstance("OxygenBottle", "OxygenBottle"),
+                new LanguageInstance("SpeedBottle_ToolTips", "[LMB] Use"),
+                new LanguageInstance("SpeedBottle", "SpeedBottle")
+                );
         }
 
         public static AssetBundle QuickLoadAssetBundle(string name)
