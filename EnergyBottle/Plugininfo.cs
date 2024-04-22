@@ -16,7 +16,7 @@ namespace EnergyBottle
     {
         public const string ModGUID = "hyydsz-EnergyBottle";
         public const string ModName = "EnergyBottle";
-        public const string ModVersion = "0.1.4";
+        public const string ModVersion = "0.1.5";
 
         public static ConfigEntry<float> SpawnRarity;
         public static ConfigEntry<int> SpawnBudgetCost;
