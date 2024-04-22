@@ -2,6 +2,7 @@
 using ShopUtils;
 using ShopUtils.Network;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace EnergyBottle
@@ -9,11 +10,6 @@ namespace EnergyBottle
     public class EnergyType
     {
         public static ConfigFile Config;
-
-        private ConfigEntry<bool> Buyable;
-        private ConfigEntry<float> Time;
-        private ConfigEntry<float> Force;
-        private ConfigEntry<int> Price;
 
         private string EnergyName;
         private bool HasTime = true;
@@ -28,7 +24,7 @@ namespace EnergyBottle
 
         private string TimeKey
         {
-            get { return $"{EnergyName}Time"; }
+            get { return $"{EnergyName}Sconds"; }
         }
 
         private string BuyableKey
@@ -65,57 +61,52 @@ namespace EnergyBottle
 
             item.itemObject.AddComponent(type);
 
-            InitData();
+            LoadConfigData();
 
             Items.RegisterSpawnableItem(item, PluginInfo.SpawnRarity.Value, PluginInfo.SpawnBudgetCost.Value);
         }
 
-        private void InitData()
+        private void LoadConfigData()
         {
-            Networks.OnLobbyCreated += () =>
+            Dictionary<string, object> datas = new Dictionary<string, object>
             {
-                Buyable = Config.Bind(EnergyName, "BottleBuyable", false);
-                Price = Config.Bind(EnergyName, "BottlePrice", DefaultPrice);
-                Force = Config.Bind(EnergyName, "BottleForce", DefualtForce, Description);
-
-                if (HasTime)
-                {
-                    Time = Config.Bind(EnergyName, "BottleTime", DefualtTime);
-
-                    Networks.SetLobbyData(TimeKey, Time.Value);
-                }
-
-                Networks.SetLobbyData(BuyableKey, Buyable.Value);
-                Networks.SetLobbyData(PriceKey, Price.Value);
-                Networks.SetLobbyData(ForceKey, Force.Value);
+                {BuyableKey, Config.Bind(EnergyName, "BottleBuyable", false).Value},
+                {PriceKey, Config.Bind(EnergyName, "BottlePrice", DefaultPrice).Value},
+                {ForceKey,  Config.Bind(EnergyName, "BottleForce", DefualtForce, Description).Value},
             };
 
-            Networks.OnLobbyEnter += () =>
-            {
-                try
+            if (HasTime) {
+                datas.Add(TimeKey, Config.Bind(EnergyName, "BottleTime", DefualtTime).Value);
+            }
+
+            Networks.SetNetworkSync(datas,
+                dic =>
                 {
-                    if (HasTime)
+                    try
                     {
-                        m_Time = float.Parse(Networks.GetLobbyData(TimeKey));
+                        if (HasTime) {
+                            m_Time = float.Parse(dic[TimeKey]);
+                        }
+
+                        m_Force = float.Parse(dic[ForceKey]);
+
+                        bool buyable = bool.Parse(dic[BuyableKey]);
+                        int price = int.Parse(dic[PriceKey]);
+
+                        if (buyable) {
+                            Items.RegisterShopItem(item, ShopItemCategory.Misc, price);
+                        }
+
+                        Debug.Log($"{EnergyName}: [Force: {m_Force}, Time: {m_Time}, Buyable: {buyable}, Price: {price}]");
+
+                        SteamLoaded = true;
                     }
-
-                    m_Force = float.Parse(Networks.GetLobbyData(ForceKey));
-
-                    bool buyable = bool.Parse(Networks.GetLobbyData(BuyableKey));
-                    if (buyable)
+                    catch
                     {
-                        int price = int.Parse(Networks.GetLobbyData(PriceKey));
-
-                        Items.RegisterShopItem(item, ShopItemCategory.Misc, price);
+                        Debug.LogError($"Load `{EnergyName}` Energy Bottles Data Fail.");
                     }
-
-                    SteamLoaded = true;
                 }
-                catch
-                {
-                    Debug.LogError("Load Energy Bottles Data Fail.");
-                }
-            };
+            );
         }
     }
 }

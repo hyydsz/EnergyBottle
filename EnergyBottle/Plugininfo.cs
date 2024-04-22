@@ -46,10 +46,10 @@ namespace EnergyBottle
             SpawnRarity = Config.Bind("Config", "SpawnRarity", 1f);
             SpawnBudgetCost = Config.Bind("Config", "SpawnBudgetCost", 1);
 
-            JumpBehavior.jump = new EnergyType(true, "JumpBottle", 30f, 30f, 50, jump, typeof(JumpBehavior), "Jump Height");
+            JumpBehavior.jump = new EnergyType(true, "JumpBottle", 30f, 20f, 50, jump, typeof(JumpBehavior), "Jump Height");
             HealthBehavior.health = new EnergyType(false, "HealthBottle", 30f, 0, 50, health, typeof(HealthBehavior), "Restore Health");
             OxygenBehavior.oxygen = new EnergyType(false, "OxygenBottle", 30f, 0, 50, oxygen, typeof(OxygenBehavior), "Restore Oxygen");
-            SpeedBehavior.speed = new EnergyType(true, "SpeedBottle", 25f, 30f, 50, speed, typeof(SpeedBehavior), "Movement Speed");
+            SpeedBehavior.speed = new EnergyType(true, "SpeedBottle", 25f, 20f, 50, speed, typeof(SpeedBehavior), "Movement Speed");
         }
 
         private void LoadLangauge()

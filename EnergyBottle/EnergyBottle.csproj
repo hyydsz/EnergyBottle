@@ -84,7 +84,6 @@
     <Compile Include="EnergyBehavior.cs" />
     <Compile Include="EnergyType.cs" />
     <Compile Include="Plugininfo.cs" />
-    <Compile Include="PlayerPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

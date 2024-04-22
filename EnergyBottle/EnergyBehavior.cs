@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using System.Collections;
 using UnityEngine;
 
 namespace EnergyBottle
@@ -6,6 +7,8 @@ namespace EnergyBottle
     public abstract class EnergyBehavior : ItemInstanceBehaviour
     {
         private OnOffEntry onOffEntry;
+
+        private bool on;
 
         private SFX_PlayOneShot Use;
         private Material Middle;
@@ -26,6 +29,8 @@ namespace EnergyBottle
             {
                 Middle.SetColor("_Color", new Color(0, 0, 0));
             }
+
+            on = onOffEntry.on;
         }
 
         void Awake()
@@ -38,47 +43,59 @@ namespace EnergyBottle
         {
             if (isHeldByMe && !Player.localPlayer.HasLockedInput() && Player.localPlayer.input.clickWasPressed)
             {
-                if (CanUse())
+                if (onOffEntry.on)
                 {
-                    if (onOffEntry.on)
+                    if (CanUse())
                     {
-                        Use.Play();
-
-                        OnUse();
-
                         onOffEntry.on = false;
                         onOffEntry.SetDirty();
                     }
                 }
-                
+            }
+
+            if (on != onOffEntry.on)
+            {
+                Use.Play();
+
+                if (isHeldByMe)
+                {
+                    PlayerController player = Player.localPlayer.refs.controller;
+                    player.StartCoroutine(OnUse(player));
+
+                    if (Player.localPlayer.TryGetInventory(out var inventory))
+                    {
+                        inventory.TryRemoveItemFromSlot(Player.localPlayer.data.selectedItemSlot, out _);
+                    }
+                }
             }
         }
 
         public abstract bool CanUse();
-        public virtual void OnUse()
-        {
-            if (Player.localPlayer.TryGetInventory(out var inventory))
-            {
-                inventory.TryRemoveItemFromSlot(Player.localPlayer.data.selectedItemSlot, out _);
-            }
-        }
+        public abstract IEnumerator OnUse(PlayerController player);
     }
 
     public class JumpBehavior : EnergyBehavior
     {
+        private static bool jumpCoolingTime = true;
         public static EnergyType jump;
 
         public override bool CanUse()
         {
-            return jump.SteamLoaded;
+            return jump.SteamLoaded && jumpCoolingTime;
         }
 
-        public override void OnUse()
+        public override IEnumerator OnUse(PlayerController player)
         {
-            base.OnUse();
+            jumpCoolingTime = false;
 
-            PlayerEnergyManager.instance.JumpBoostTime += jump.m_Time;
-            PlayerEnergyManager.instance.JumpBoostForce = jump.m_Force;
+            float defaultJump = player.jumpImpulse;
+            player.jumpImpulse = jump.m_Force;
+
+            yield return new WaitForSeconds(jump.m_Time);
+
+            player.jumpImpulse = defaultJump;
+
+            jumpCoolingTime = true;
         }
     }
 
@@ -91,12 +108,12 @@ namespace EnergyBottle
             return Player.localPlayer.data.health < Player.PlayerData.maxHealth && health.SteamLoaded;
         }
 
-        public override void OnUse()
+        public override IEnumerator OnUse(PlayerController player)
         {
-            base.OnUse();
-
             Player.localPlayer.data.health = Mathf.MoveTowards(Player.localPlayer.data.health,
                 Player.PlayerData.maxHealth, health.m_Force);
+
+            yield break;
         }
     }
 
@@ -109,30 +126,37 @@ namespace EnergyBottle
             return Player.localPlayer.data.remainingOxygen < Player.localPlayer.data.maxOxygen && oxygen.SteamLoaded;
         }
 
-        public override void OnUse()
+        public override IEnumerator OnUse(PlayerController player)
         {
-            base.OnUse();
-
             Player.localPlayer.data.remainingOxygen = Mathf.MoveTowards(Player.localPlayer.data.remainingOxygen,
                  Player.localPlayer.data.maxOxygen, oxygen.m_Force);
+
+            yield break;
         }
     }
 
     public class SpeedBehavior : EnergyBehavior
     {
+        private static bool speedCoolingTime = true;
         public static EnergyType speed;
 
         public override bool CanUse()
         {
-            return speed.SteamLoaded;
+            return speed.SteamLoaded && speedCoolingTime;
         }
 
-        public override void OnUse()
+        public override IEnumerator OnUse(PlayerController player)
         {
-            base.OnUse();
+            speedCoolingTime = false;
 
-            PlayerEnergyManager.instance.SpeedBoostTime += speed.m_Time;
-            PlayerEnergyManager.instance.SpeedBoostForce = speed.m_Force;
+            float defaultSpeed = player.movementForce;
+            player.movementForce = speed.m_Force;
+
+            yield return new WaitForSeconds(speed.m_Time);
+
+            player.jumpImpulse = defaultSpeed;
+
+            speedCoolingTime = true;
         }
     }
 }
